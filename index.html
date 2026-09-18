@@ -11,7 +11,7 @@
   <style>
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
-    
+   
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
     ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
@@ -176,7 +176,7 @@
                 <label class="block text-[11px] font-bold text-rose-300 uppercase tracking-wider">Servicios / Spa Seleccionados</label>
                 <button type="button" onclick="limpiarOpciones()" class="text-[10px] text-slate-400 hover:text-rose-400">Limpiar</button>
               </div>
-              
+             
               <div id="lista-opciones-seleccionadas" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs">
                 <span class="text-slate-500 text-[11px] italic">Ninguna opción seleccionada aún...</span>
               </div>
@@ -194,7 +194,7 @@
             <!-- FECHA Y HORA AUTOMATIZADA -->
             <div class="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
               <label class="block text-[11px] font-bold text-rose-300 uppercase tracking-wider">Fecha & Hora Automatizada</label>
-              
+             
               <div class="flex gap-2">
                 <input type="date" id="turno-fecha-dia" required onchange="actualizarBotonHorario()" class="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-rose-500">
                 <button type="button" onclick="toggleSelectorHorarios()" id="btn-mostrar-horarios" class="w-1/2 bg-rose-600/20 border border-rose-500/40 text-rose-300 hover:bg-rose-600 hover:text-white rounded-xl px-2 py-1.5 text-xs font-semibold transition flex items-center justify-center gap-1">
@@ -208,7 +208,7 @@
                 <div id="grid-horas" class="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
               </div>
             </div>
-            
+           
             <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20">
               <i data-lucide="ticket" class="w-4 h-4"></i> Confirmar y Generar Ticket
             </button>
@@ -305,7 +305,7 @@
   <!-- MODAL VISUAL EN LA INTERFAZ PARA EL TICKET DE RESERVA / PAGO -->
   <div id="modal-ticket" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white text-slate-950 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative border border-slate-200 space-y-4 animate-fade" id="ticket-modal-content">
-      
+     
       <!-- Encabezado del Ticket -->
       <div class="text-center border-b border-dashed border-slate-300 pb-3">
         <h2 class="text-base font-black uppercase tracking-wider text-slate-900">Pinamar NailS</h2>
@@ -367,8 +367,8 @@
       { id: 20, nombre: "Abstract Block Colors", cat: "Arte", precio: 41000, color1: "#06b6d4", color2: "#f43f5e" },
       { id: 21, nombre: "French Reverse Pink", cat: "Clásico", precio: 31000, color1: "#f472b6", color2: "#ffffff" },
       { id: 22, nombre: "Crystal Clear Glass", cat: "Acrílico", precio: 44000, color1: "#38bdf8", color2: "#ffffff" },
-      
-      // NUEVAS TARJETAS AGREGADAS: SPA Y PEDICURÍA
+     
+      // TARJETAS DE SPA Y PEDICURÍA
       { id: 23, nombre: "Manicura SPA & Exfoliación", cat: "Spa Manos", precio: 20000, color1: "#fb7185", color2: "#fda4af" },
       { id: 24, nombre: "Pedicuría Rusa Completa", cat: "Pedicuría", precio: 26000, color1: "#38bdf8", color2: "#0284c7" },
       { id: 25, nombre: "Spa de Pies Hidratante & Exfoliación", cat: "Spa Pies", precio: 28000, color1: "#34d399", color2: "#059669" },
@@ -397,7 +397,7 @@
 
     req.onsuccess = (e) => {
       db = e.target.result;
-      
+     
       const hoyStr = new Date().toISOString().split('T')[0];
       document.getElementById("turno-fecha-dia").value = hoyStr;
 
@@ -433,7 +433,7 @@
       active.classList.remove('text-slate-400');
     }
 
-    // OPCIONES DE UÑAS Y SPA MULTIPLES
+    // OPCIONES DE UÑAS Y SPA MÚLTIPLES
     function poblarSelectOpciones() {
       const select = document.getElementById("select-agregar-opcion");
       select.innerHTML = '<option value="">+ Agregar otra opción / Spa...</option>';
@@ -492,7 +492,7 @@
       totalEl.textContent = total.toLocaleString('es-AR', { minimumFractionDigits: 2 });
     }
 
-    // GALERÍA
+    // GALERÍA CORREGIDA - CARGA LAS FOTOS DESDE LA CARPETA img/
     function renderGaleria() {
       const grid = document.getElementById("grid-galeria");
       grid.innerHTML = "";
@@ -503,24 +503,16 @@
 
         ESTILOS_BASE.forEach(estilo => {
           const fotoCustom = fotosPersonalizadas[estilo.id];
+          const fotoRuta = fotoCustom || `./img/${estilo.id}.jpg`;
+
           grid.innerHTML += `
             <div class="card-animated bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between hover:border-rose-600/50">
               <div class="space-y-2">
                 <div class="relative h-36 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-800">
-                  ${fotoCustom 
-                    ? `<img src="${fotoCustom}" class="w-full h-full object-cover">`
-                    : `<svg width="100%" height="100%" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                          <linearGradient id="grad-${estilo.id}" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="${estilo.color1}" />
-                            <stop offset="100%" stop-color="${estilo.color2}" />
-                          </linearGradient>
-                        </defs>
-                        <rect width="200" height="120" fill="url(#grad-${estilo.id})" opacity="0.2"/>
-                        <circle cx="100" cy="60" r="40" fill="url(#grad-${estilo.id})" />
-                        <path d="M70,90 Q100,30 130,90" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6"/>
-                       </svg>`
-                  }
+                  <img src="${fotoRuta}" 
+                       alt="${estilo.nombre}" 
+                       class="w-full h-full object-cover"
+                       onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=400&auto=format&fit=crop';">
                   <span class="absolute top-2 right-2 bg-slate-950/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-rose-300 border border-slate-800">
                     $${estilo.precio.toLocaleString('es-AR')}
                   </span>
@@ -641,7 +633,7 @@
           const btn = document.createElement("button");
           btn.type = "button";
           btn.textContent = hora;
-          
+         
           if (ocupado) {
             btn.className = "py-1 bg-slate-950 text-slate-600 rounded-lg text-[11px] font-mono cursor-not-allowed border border-slate-900 line-through";
           } else {
@@ -681,12 +673,12 @@
       const fechaCompleta = `${dia}T${hora}`;
 
       const tx = db.transaction("turnos", "readwrite");
-      const addReq = tx.objectStore("turnos").add({ 
-        cliente, 
-        fecha: fechaCompleta, 
+      const addReq = tx.objectStore("turnos").add({
+        cliente,
+        fecha: fechaCompleta,
         servicio: servicioTexto,
         montoTotal: totalPrecio,
-        items: opcionesSeleccionadas 
+        items: opcionesSeleccionadas
       });
 
       addReq.onsuccess = (evt) => {
@@ -694,13 +686,13 @@
         mostrarModalTicketReserva(idTurno, cliente, fechaCompleta, opcionesSeleccionadas, totalPrecio);
       };
 
-      tx.oncomplete = () => { 
-        e.target.reset(); 
+      tx.oncomplete = () => {
+        e.target.reset();
         limpiarOpciones();
         document.getElementById("turno-hora-val").value = "";
         document.getElementById("lbl-hora-seleccionada").textContent = "Elegir Hora";
         document.getElementById("turno-fecha-dia").value = new Date().toISOString().split('T')[0];
-        cargarTurnos(); 
+        cargarTurnos();
       };
     };
 
@@ -712,7 +704,7 @@
           const [d, h] = t.fecha.split("T");
           const itemsArr = t.items || [{ nombre: t.servicio, precio: t.montoTotal || 0 }];
           const itemsJson = JSON.stringify(itemsArr).replace(/"/g, '&quot;');
-          
+         
           list.innerHTML += `
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
               <div>
@@ -736,9 +728,9 @@
     // MOSTRAR TICKET DE RESERVA EN LA INTERFAZ
     function mostrarModalTicketReserva(id, cliente, fechaStr, items, total) {
       document.getElementById("modal-ticket-subtitulo").textContent = "COMPROBANTE DE RESERVA";
-      
+     
       const [dia, hora] = fechaStr.split("T");
-      
+     
       let detalleHtml = "";
       if (Array.isArray(items)) {
         items.forEach(it => {
@@ -782,7 +774,7 @@
 
       const tx = db.transaction("caja", "readwrite");
       const addReq = tx.objectStore("caja").add({ concepto, monto, fecha: new Date().toISOString() });
-      
+     
       addReq.onsuccess = (evt) => {
         const idPago = evt.target.result;
         mostrarModalTicketPago(idPago, concepto, monto);
