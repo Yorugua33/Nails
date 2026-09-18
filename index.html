@@ -6,7 +6,7 @@
   <title>Pinamar Nails - Global System Marcelo Muraña</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- SheetJS para exportación a Excel -->
+  <!-- SheetJS para exportación e importación a Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -154,7 +154,12 @@
           </form>
         </div>
         <div class="lg:col-span-2 bg-slate-900 p-5 rounded-2xl border border-slate-800">
-          <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-rose-400"></i> Directorio de Clientes</h3>
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-rose-400"></i> Directorio de Clientes</h3>
+            <button onclick="exportarClientesExcel()" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar Clientes (.xlsx)
+            </button>
+          </div>
           <div id="lista-clientes" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-1"></div>
         </div>
       </div>
@@ -268,33 +273,34 @@
       </div>
     </section>
 
-    <!-- RESPALDO -->
+    <!-- RESPALDO EXCEL EXCLUSIVO -->
     <section id="tab-respaldo" class="tab-content hidden animate-fade">
       <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 max-w-xl mx-auto text-center space-y-6">
         <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl w-16 h-16 mx-auto flex items-center justify-center border border-emerald-500/20">
           <i data-lucide="file-spreadsheet" class="w-8 h-8"></i>
         </div>
         <div>
-          <h2 class="text-xl font-bold text-white">Respaldo Integral del Sistema</h2>
-          <p class="text-xs text-slate-400 mt-1">Exporta tus clientes, turnos, movimientos de caja e inventarios a planillas de Excel (.xlsx) o archivos de datos JSON.</p>
+          <h2 class="text-xl font-bold text-white">Respaldo Integral en Excel</h2>
+          <p class="text-xs text-slate-400 mt-1">Exporta e importa únicamente en hojas de cálculo de Excel (.xlsx) de manera simple y directa.</p>
         </div>
 
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-3">
           <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-            <i data-lucide="download" class="w-4 h-4"></i> Exportar a Excel (.xlsx)
+            <i data-lucide="download" class="w-4 h-4"></i> Exportar Datos a Excel
           </h4>
           <button onclick="exportarExcel()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
             <i data-lucide="file-output" class="w-4 h-4"></i> Descargar Respaldo General (.xlsx)
           </button>
         </div>
 
-        <div class="border-t border-slate-800 pt-4 flex flex-wrap gap-3 justify-center">
-          <button onclick="exportarDB()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-800/50 rounded-xl text-xs font-semibold transition flex items-center gap-2">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar JSON
-          </button>
-          <input type="file" id="import-file" onchange="importarDB(event)" accept=".json" class="hidden">
-          <button onclick="document.getElementById('import-file').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-2">
-            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar JSON
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-3">
+          <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="upload" class="w-4 h-4"></i> Importar Clientes desde Excel
+          </h4>
+          <p class="text-[11px] text-slate-400">Carga un archivo Excel con columnas "Nombre" y "Teléfono" para importar masivamente tus clientes.</p>
+          <input type="file" id="import-excel-file" onchange="importarClientesExcel(event)" accept=".xlsx, .xls" class="hidden">
+          <button onclick="document.getElementById('import-excel-file').click()" class="w-full py-2.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-800/50 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+            <i data-lucide="file-input" class="w-4 h-4"></i> Cargar Planilla de Clientes (.xlsx)
           </button>
         </div>
       </div>
@@ -583,13 +589,27 @@
       db.transaction("clientes").objectStore("clientes").getAll().onsuccess = (e) => {
         e.target.result.forEach(c => {
           list.innerHTML += `
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
-              <p class="font-bold text-xs text-white">${c.nombre}</p>
-              <p class="text-[11px] text-slate-400">${c.telefono}</p>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+              <div>
+                <p class="font-bold text-xs text-white">${c.nombre}</p>
+                <p class="text-[11px] text-slate-400">${c.telefono}</p>
+              </div>
+              <button onclick="eliminarCliente(${c.id})" class="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-900 rounded-lg transition" title="Eliminar cliente">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
             </div>`;
           sel.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`;
         });
+        lucide.createIcons();
       };
+    }
+
+    function eliminarCliente(id) {
+      if (confirm("¿Estás seguro de eliminar este cliente?")) {
+        const tx = db.transaction("clientes", "readwrite");
+        tx.objectStore("clientes").delete(id);
+        tx.oncomplete = () => cargarClientes();
+      }
     }
 
     // HORARIOS
@@ -904,7 +924,29 @@
       };
     }
 
-    // RESPALDO EXCEL GENERAL
+    // GESTIÓN EXCLUSIVA DE EXCEL
+    async function exportarClientesExcel() {
+      const clientes = await new Promise(res => {
+        db.transaction("clientes").objectStore("clientes").getAll().onsuccess = e => res(e.target.result);
+      });
+
+      if (clientes.length === 0) {
+        alert("No hay clientes registrados para exportar.");
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+      const wsClientes = XLSX.utils.json_to_sheet(clientes.map(c => ({
+        "ID": c.id,
+        "Nombre": c.nombre,
+        "Teléfono": c.telefono
+      })));
+      XLSX.utils.book_append_sheet(wb, wsClientes, "Clientes");
+
+      const hoy = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Clientes_PinamarNails_${hoy}.xlsx`);
+    }
+
     async function exportarExcel() {
       const wb = XLSX.utils.book_new();
 
@@ -947,35 +989,45 @@
       XLSX.writeFile(wb, `Respaldo_General_PinamarNails_${hoy}.xlsx`);
     }
 
-    // RESPALDO JSON
-    async function exportarDB() {
-      const backup = {};
-      for (const store of ["clientes", "turnos", "caja", "stock", "fotos"]) {
-        backup[store] = await new Promise(res => {
-          db.transaction(store).objectStore(store).getAll().onsuccess = e => res(e.target.result);
-        });
-      }
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `NailStudio_Backup.json`;
-      a.click();
-    }
+    function importarClientesExcel(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    function importarDB(e) {
       const reader = new FileReader();
-      reader.onload = async (evt) => {
-        const data = JSON.parse(evt.target.result);
-        for (const store of ["clientes", "turnos", "caja", "stock", "fotos"]) {
-          if (data[store]) {
-            const tx = db.transaction(store, "readwrite");
-            tx.objectStore(store).clear();
-            data[store].forEach(item => tx.objectStore(store).add(item));
-          }
+      reader.onload = (evt) => {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet);
+
+        if (json.length === 0) {
+          alert("El archivo Excel está vacío o no tiene el formato correcto.");
+          return;
         }
-        location.reload();
+
+        const tx = db.transaction("clientes", "readwrite");
+        const store = tx.objectStore("clientes");
+
+        let agregados = 0;
+        json.forEach(row => {
+          const nombre = row["Nombre"] || row["Nombre Cliente"] || row["nombre"];
+          const telefono = row["Teléfono"] || row["Telefono"] || row["telefono"] || "";
+
+          if (nombre) {
+            store.add({ nombre: String(nombre), telefono: String(telefono) });
+            agregados++;
+          }
+        });
+
+        tx.oncomplete = () => {
+          alert(`¡Se importaron ${agregados} clientes desde el archivo Excel!`);
+          cargarClientes();
+          e.target.value = "";
+        };
       };
-      reader.readAsText(e.target.files[0]);
+      reader.readAsArrayBuffer(file);
     }
   </script>
 </body>
