@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinamar Nails - Global System Marcelo Muraña</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS para exportación a Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade { animation: fadeIn 0.3s ease-out forwards; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
+
+    .card-animated {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-animated:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(225, 29, 72, 0.25);
+    }
+
+    /* REGLAS DE IMPRESIÓN PARA IMPRESORA TÉRMICA DE 58MM */
+    @media print {
+      body * { visibility: hidden !important; }
+      #ticket-modal-content, #ticket-modal-content * { visibility: visible !important; }
+      #ticket-modal-content {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 58mm !important;
+        margin: 0 !important;
+        padding: 2mm 3mm !important;
+        background: #fff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans antialiased">
+
+  <!-- Header principal -->
+  <header class="border-b border-rose-900/40 bg-slate-900/90 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-gradient-to-tr from-rose-600 to-pink-500 rounded-xl shadow-lg shadow-rose-600/20">
+          <i data-lucide="gem" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-black bg-gradient-to-r from-rose-400 to-pink-200 bg-clip-text text-transparent">
+            Pinamar NailS
+          </h1>
+          <p class="text-[11px] text-slate-400">Tickets de Pago & Reserva (58mm)</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button onclick="switchTab('galeria')" id="btn-galeria" class="tab-btn active px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 bg-rose-600 text-white">
+          <i data-lucide="grid" class="w-3.5 h-3.5"></i> Catálogo
+        </button>
+        <button onclick="switchTab('clientes')" id="btn-clientes" class="tab-btn px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i> Clientes
+        </button>
+        <button onclick="switchTab('turnos')" id="btn-turnos" class="tab-btn px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Agenda
+        </button>
+        <button onclick="switchTab('caja')" id="btn-caja" class="tab-btn px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i> Caja & Pago
+        </button>
+        <button onclick="switchTab('stock')" id="btn-stock" class="tab-btn px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i data-lucide="box" class="w-3.5 h-3.5"></i> Stock
+        </button>
+        <button onclick="switchTab('respaldo')" id="btn-respaldo" class="tab-btn px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Respaldo
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CARRUSEL EN ENCABEZADO -->
+  <section class="max-w-7xl mx-auto px-4 pt-4 w-full">
+    <div class="relative overflow-hidden rounded-2xl border border-rose-900/40 bg-slate-900 h-44 sm:h-52 shadow-xl shadow-rose-950/20">
+      <div id="carousel-slides" class="w-full h-full relative">
+        <div class="carousel-slide absolute inset-0 opacity-100 transition-opacity duration-1000 flex items-center justify-between px-8 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10">
+          <div class="max-w-md space-y-2 z-20">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">Tendencias 2026</span>
+            <h2 class="text-xl sm:text-2xl font-black text-white">Esculpidas en Gel & Soft Gel</h2>
+            <p class="text-xs text-slate-300">Acabados naturales con resistencia extrema y diseños exclusivos de temporada.</p>
+          </div>
+          <div class="absolute right-0 top-0 w-1/2 h-full bg-cover bg-center mix-blend-luminosity opacity-40" style="background-image: url('https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=800&auto=format&fit=crop');"></div>
+        </div>
+        <div class="carousel-slide absolute inset-0 opacity-0 transition-opacity duration-1000 flex items-center justify-between px-8 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10">
+          <div class="max-w-md space-y-2 z-20">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-pink-500/20 text-pink-300 border border-pink-500/30">Nail Art Premium</span>
+            <h2 class="text-xl sm:text-2xl font-black text-white">Swarovski Glam & Chrome</h2>
+            <p class="text-xs text-slate-300">Detalles encapsulados y efectos metálicos para un estilo deslumbrante.</p>
+          </div>
+          <div class="absolute right-0 top-0 w-1/2 h-full bg-cover bg-center mix-blend-luminosity opacity-40" style="background-image: url('https://images.unsplash.com/photo-1632345031435-8727f6897d53?q=80&w=800&auto=format&fit=crop');"></div>
+        </div>
+        <div class="carousel-slide absolute inset-0 opacity-0 transition-opacity duration-1000 flex items-center justify-between px-8 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10">
+          <div class="max-w-md space-y-2 z-20">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Cuidado Integral</span>
+            <h2 class="text-xl sm:text-2xl font-black text-white">Spa de Manos & Pedicuría</h2>
+            <p class="text-xs text-slate-300">Tratamientos hidratantes para lucir uñas saludables y resplandecientes.</p>
+          </div>
+          <div class="absolute right-0 top-0 w-1/2 h-full bg-cover bg-center mix-blend-luminosity opacity-40" style="background-image: url('https://images.unsplash.com/photo-1519014816548-bf5fe059798b?q=80&w=800&auto=format&fit=crop');"></div>
+        </div>
+      </div>
+      <div class="absolute bottom-3 right-4 z-30 flex gap-1.5">
+        <button onclick="setSlide(0)" class="carousel-dot w-2.5 h-2.5 rounded-full bg-rose-500 transition-all"></button>
+        <button onclick="setSlide(1)" class="carousel-dot w-2.5 h-2.5 rounded-full bg-slate-600 transition-all"></button>
+        <button onclick="setSlide(2)" class="carousel-dot w-2.5 h-2.5 rounded-full bg-slate-600 transition-all"></button>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 w-full mb-auto">
+
+    <!-- CATÁLOGO DE ESTILOS -->
+    <section id="tab-galeria" class="tab-content animate-fade space-y-4">
+      <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="palette" class="text-rose-400 w-5 h-5"></i> Catálogo de Servicios & Spa ($ ARS)
+          </h2>
+          <p class="text-xs text-slate-400">Selecciona varias opciones de uñas y tratamientos de Spa para combinar en tu reserva.</p>
+        </div>
+        <button onclick="switchTab('turnos')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Ir a Agendar (<span id="cant-seleccionados-badge">0</span>)
+        </button>
+      </div>
+      <div id="grid-galeria" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Render dinámico -->
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section id="tab-clientes" class="tab-content hidden animate-fade space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i> Nuevo Cliente</h3>
+          <form id="form-cliente" class="space-y-3">
+            <input type="text" id="cli-nombre" placeholder="Nombre completo" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-rose-500">
+            <input type="tel" id="cli-telefono" placeholder="WhatsApp / Teléfono" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-rose-500">
+            <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition">Guardar Cliente</button>
+          </form>
+        </div>
+        <div class="lg:col-span-2 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-rose-400"></i> Directorio de Clientes</h3>
+          <div id="lista-clientes" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENDA -->
+    <section id="tab-turnos" class="tab-content hidden animate-fade space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-rose-400 flex items-center gap-2"><i data-lucide="calendar-plus" class="w-4 h-4"></i> Programar Cita</h3>
+          <form id="form-turno" class="space-y-3">
+            <select id="turno-cliente" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-rose-500">
+              <option value="">Seleccionar Cliente</option>
+            </select>
+
+            <!-- SELECCIÓN MÚLTIPLE DE UÑAS Y SPA -->
+            <div class="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="flex justify-between items-center">
+                <label class="block text-[11px] font-bold text-rose-300 uppercase tracking-wider">Servicios / Spa Seleccionados</label>
+                <button type="button" onclick="limpiarOpciones()" class="text-[10px] text-slate-400 hover:text-rose-400">Limpiar</button>
+              </div>
+              
+              <div id="lista-opciones-seleccionadas" class="space-y-1.5 max-h-28 overflow-y-auto pr-1 text-xs">
+                <span class="text-slate-500 text-[11px] italic">Ninguna opción seleccionada aún...</span>
+              </div>
+
+              <select id="select-agregar-opcion" onchange="agregarOpcionServicio(this.value)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 outline-none focus:border-rose-500">
+                <option value="">+ Agregar otra opción / Spa...</option>
+              </select>
+
+              <div class="pt-1 border-t border-slate-800 flex justify-between items-center font-bold text-xs">
+                <span class="text-slate-400">Total Estimado:</span>
+                <span class="text-emerald-400">$<span id="monto-total-turnos">0.00</span></span>
+              </div>
+            </div>
+
+            <!-- FECHA Y HORA AUTOMATIZADA -->
+            <div class="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <label class="block text-[11px] font-bold text-rose-300 uppercase tracking-wider">Fecha & Hora Automatizada</label>
+              
+              <div class="flex gap-2">
+                <input type="date" id="turno-fecha-dia" required onchange="actualizarBotonHorario()" class="w-1/2 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-rose-500">
+                <button type="button" onclick="toggleSelectorHorarios()" id="btn-mostrar-horarios" class="w-1/2 bg-rose-600/20 border border-rose-500/40 text-rose-300 hover:bg-rose-600 hover:text-white rounded-xl px-2 py-1.5 text-xs font-semibold transition flex items-center justify-center gap-1">
+                  <i data-lucide="clock" class="w-3.5 h-3.5"></i> <span id="lbl-hora-seleccionada">Elegir Hora</span>
+                </button>
+              </div>
+              <input type="hidden" id="turno-hora-val" required>
+
+              <div id="panel-horarios" class="hidden bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
+                <p class="text-[10px] text-slate-400 font-medium">Horarios Disponibles para el día seleccionado:</p>
+                <div id="grid-horas" class="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+            
+            <button type="submit" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-rose-600/20">
+              <i data-lucide="ticket" class="w-4 h-4"></i> Confirmar y Generar Ticket
+            </button>
+          </form>
+        </div>
+
+        <div class="lg:col-span-2 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-rose-400"></i> Turnos Agendados</h3>
+          <div id="lista-turnos" class="space-y-2 max-h-[400px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAJA -->
+    <section id="tab-caja" class="tab-content hidden animate-fade space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2"><i data-lucide="plus-circle" class="w-4 h-4"></i> Registro de Pago</h3>
+          <form id="form-pago" class="space-y-3">
+            <input type="text" id="pago-concepto" placeholder="Concepto del servicio" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-emerald-500">
+            <input type="number" id="pago-monto" step="0.01" placeholder="Monto ($)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-emerald-500">
+            <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+              <i data-lucide="ticket" class="w-4 h-4"></i> Registrar Pago y Ver Ticket
+            </button>
+          </form>
+        </div>
+        <div class="lg:col-span-2 bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Balance Actual</span>
+              <p class="text-3xl font-black text-emerald-400">$<span id="total-caja">0.00</span></p>
+            </div>
+            <button onclick="cerrarCaja()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-800/50 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Cierre de Caja (Respaldo Excel)
+            </button>
+          </div>
+          <div id="lista-pagos" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STOCK -->
+    <section id="tab-stock" class="tab-content hidden animate-fade space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2"><i data-lucide="package-plus" class="w-4 h-4"></i> Añadir Insumo</h3>
+          <form id="form-stock" class="space-y-3">
+            <input type="text" id="stock-nombre" placeholder="Producto (ej. Acrílico Rose)" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-amber-500">
+            <input type="number" id="stock-cant" placeholder="Cantidad" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 outline-none focus:border-amber-500">
+            <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold transition">Guardar Insumo</button>
+          </form>
+        </div>
+        <div class="lg:col-span-2 bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <h3 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2"><i data-lucide="boxes" class="w-4 h-4 text-amber-400"></i> Inventario de Productos</h3>
+          <div id="lista-stock" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESPALDO -->
+    <section id="tab-respaldo" class="tab-content hidden animate-fade">
+      <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 max-w-xl mx-auto text-center space-y-6">
+        <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-2xl w-16 h-16 mx-auto flex items-center justify-center border border-emerald-500/20">
+          <i data-lucide="file-spreadsheet" class="w-8 h-8"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white">Respaldo Integral del Sistema</h2>
+          <p class="text-xs text-slate-400 mt-1">Exporta tus clientes, turnos, movimientos de caja e inventarios a planillas de Excel (.xlsx) o archivos de datos JSON.</p>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-left space-y-3">
+          <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i> Exportar a Excel (.xlsx)
+          </h4>
+          <button onclick="exportarExcel()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+            <i data-lucide="file-output" class="w-4 h-4"></i> Descargar Respaldo General (.xlsx)
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800 pt-4 flex flex-wrap gap-3 justify-center">
+          <button onclick="exportarDB()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-800/50 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar JSON
+          </button>
+          <input type="file" id="import-file" onchange="importarDB(event)" accept=".json" class="hidden">
+          <button onclick="document.getElementById('import-file').click()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center gap-2">
+            <i data-lucide="upload" class="w-3.5 h-3.5"></i> Importar JSON
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL VISUAL EN LA INTERFAZ PARA EL TICKET DE RESERVA / PAGO -->
+  <div id="modal-ticket" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white text-slate-950 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative border border-slate-200 space-y-4 animate-fade" id="ticket-modal-content">
+      
+      <!-- Encabezado del Ticket -->
+      <div class="text-center border-b border-dashed border-slate-300 pb-3">
+        <h2 class="text-base font-black uppercase tracking-wider text-slate-900">Pinamar NailS</h2>
+        <p id="modal-ticket-subtitulo" class="text-[10px] font-bold text-slate-500 tracking-widest uppercase">COMPROBANTE DE RESERVA</p>
+      </div>
+
+      <!-- Detalle Dinámico -->
+      <div id="modal-ticket-body" class="font-mono text-xs space-y-2">
+        <!-- Contenido generado por JS -->
+      </div>
+
+      <!-- Pie del Ticket -->
+      <div class="border-t border-dashed border-slate-300 pt-3 text-center font-mono text-[10px] text-slate-500">
+        <p>¡Gracias por elegirnos!</p>
+        <p class="font-bold text-slate-800">Pinamar Nails</p>
+      </div>
+
+      <!-- Botones de Acción (no se imprimen) -->
+      <div class="no-print pt-2 flex gap-2">
+        <button onclick="window.print()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-md">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Imprimir (58mm)
+        </button>
+        <button onclick="cerrarModalTicket()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-semibold transition">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
+    <p class="font-bold text-rose-400">Global System Marcelo Muraña</p>
+    <p class="text-[10px] text-slate-600 mt-0.5">Software Integral de Gestión para Salones de Belleza</p>
+  </footer>
+
+  <script>
+    // PRECIOS EN ARGENTINA ($ ARS) INCLUYENDO SPA Y PEDICURÍA
+    const ESTILOS_BASE = [
+      { id: 1, nombre: "French Ombré Nude", cat: "Clásico", precio: 28000, color1: "#fbcfe8", color2: "#ffffff" },
+      { id: 2, nombre: "Soft Gel Pastel Botánico", cat: "Gel", precio: 34000, color1: "#c084fc", color2: "#fef08a" },
+      { id: 3, nombre: "Swarovski Diamond Glam", cat: "Decoración", precio: 48000, color1: "#e2e8f0", color2: "#38bdf8" },
+      { id: 4, nombre: "Red Velvet Deep Gloss", cat: "Esmaltado", precio: 22000, color1: "#991b1b", color2: "#ef4444" },
+      { id: 5, nombre: "Stiletto Rose Quartz", cat: "Acrílico", precio: 45000, color1: "#f472b6", color2: "#fb7185" },
+      { id: 6, nombre: "Minimalist Gold Lines", cat: "Arte", precio: 30000, color1: "#1e293b", color2: "#f59e0b" },
+      { id: 7, nombre: "Neon Sunset Gradient", cat: "Degradado", precio: 32000, color1: "#f97316", color2: "#ec4899" },
+      { id: 8, nombre: "Dark Mirror Chrome", cat: "Efectos", precio: 38000, color1: "#0f172a", color2: "#64748b" },
+      { id: 9, nombre: "Glitter Encapsulated", cat: "Acrílico", precio: 46000, color1: "#fbbf24", color2: "#f43f5e" },
+      { id: 10, nombre: "Matte Emerald & Leaf", cat: "Especial", precio: 36000, color1: "#065f46", color2: "#eab308" },
+      { id: 11, nombre: "Baby Boomer Sculpted", cat: "Clásico", precio: 42000, color1: "#fda4af", color2: "#ffffff" },
+      { id: 12, nombre: "Magnetic Cat Eye Velvet", cat: "Efectos", precio: 38000, color1: "#581c87", color2: "#c084fc" },
+      { id: 13, nombre: "Pastel Lavender Matte", cat: "Esmaltado", precio: 24000, color1: "#a855f7", color2: "#e9d5ff" },
+      { id: 14, nombre: "Rose Gold Foil Shimmer", cat: "Decoración", precio: 35000, color1: "#fb7185", color2: "#fcd34d" },
+      { id: 15, nombre: "Milky White Pearl", cat: "Especial", precio: 30000, color1: "#f8fafc", color2: "#e2e8f0" },
+      { id: 16, nombre: "Burgundy Wine Fine Gold", cat: "Esmaltado", precio: 25000, color1: "#4c0519", color2: "#d97706" },
+      { id: 17, nombre: "Holographic Silver Dust", cat: "Efectos", precio: 37000, color1: "#94a3b8", color2: "#38bdf8" },
+      { id: 18, nombre: "Coral Gloss Beach", cat: "Verano", precio: 28000, color1: "#fb923c", color2: "#f43f5e" },
+      { id: 19, nombre: "Black Pearl Glass", cat: "Efectos", precio: 39000, color1: "#020617", color2: "#475569" },
+      { id: 20, nombre: "Abstract Block Colors", cat: "Arte", precio: 41000, color1: "#06b6d4", color2: "#f43f5e" },
+      { id: 21, nombre: "French Reverse Pink", cat: "Clásico", precio: 31000, color1: "#f472b6", color2: "#ffffff" },
+      { id: 22, nombre: "Crystal Clear Glass", cat: "Acrílico", precio: 44000, color1: "#38bdf8", color2: "#ffffff" },
+      
+      // NUEVAS TARJETAS AGREGADAS: SPA Y PEDICURÍA
+      { id: 23, nombre: "Manicura SPA & Exfoliación", cat: "Spa Manos", precio: 20000, color1: "#fb7185", color2: "#fda4af" },
+      { id: 24, nombre: "Pedicuría Rusa Completa", cat: "Pedicuría", precio: 26000, color1: "#38bdf8", color2: "#0284c7" },
+      { id: 25, nombre: "Spa de Pies Hidratante & Exfoliación", cat: "Spa Pies", precio: 28000, color1: "#34d399", color2: "#059669" },
+      { id: 26, nombre: "Pedicuría + Semipermanente", cat: "Pedicuría", precio: 32000, color1: "#a855f7", color2: "#7e22ce" },
+      { id: 27, nombre: "Combo Full Spa Manos & Pies", cat: "Combo Spa", precio: 42000, color1: "#f59e0b", color2: "#d97706" }
+    ];
+
+    const HORARIOS_PLANTILLA = [
+      "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30",
+      "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00"
+    ];
+
+    let opcionesSeleccionadas = [];
+
+    let db;
+    const req = indexedDB.open("NailStudioProDB", 2);
+
+    req.onupgradeneeded = (e) => {
+      db = e.target.result;
+      if (!db.objectStoreNames.contains("clientes")) db.createObjectStore("clientes", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("turnos")) db.createObjectStore("turnos", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("caja")) db.createObjectStore("caja", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("stock")) db.createObjectStore("stock", { keyPath: "id", autoIncrement: true });
+      if (!db.objectStoreNames.contains("fotos")) db.createObjectStore("fotos", { keyPath: "id" });
+    };
+
+    req.onsuccess = (e) => {
+      db = e.target.result;
+      
+      const hoyStr = new Date().toISOString().split('T')[0];
+      document.getElementById("turno-fecha-dia").value = hoyStr;
+
+      poblarSelectOpciones();
+      renderGaleria();
+      cargarClientes();
+      cargarTurnos();
+      cargarCaja();
+      cargarStock();
+      lucide.createIcons();
+    };
+
+    // CARRUSEL
+    let currentSlide = 0;
+    function setSlide(index) {
+      const slides = document.querySelectorAll('.carousel-slide');
+      const dots = document.querySelectorAll('.carousel-dot');
+      slides.forEach((s, i) => { s.style.opacity = (i === index) ? '1' : '0'; });
+      dots.forEach((d, i) => { d.className = `carousel-dot w-2.5 h-2.5 rounded-full transition-all ${i === index ? 'bg-rose-500' : 'bg-slate-600'}`; });
+      currentSlide = index;
+    }
+    setInterval(() => { setSlide((currentSlide + 1) % 3); }, 5000);
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('bg-rose-600', 'text-white');
+        b.classList.add('text-slate-400');
+      });
+      document.getElementById(`tab-${tab}`).classList.remove('hidden');
+      const active = document.getElementById(`btn-${tab}`);
+      active.classList.add('bg-rose-600', 'text-white');
+      active.classList.remove('text-slate-400');
+    }
+
+    // OPCIONES DE UÑAS Y SPA MULTIPLES
+    function poblarSelectOpciones() {
+      const select = document.getElementById("select-agregar-opcion");
+      select.innerHTML = '<option value="">+ Agregar otra opción / Spa...</option>';
+      ESTILOS_BASE.forEach(e => {
+        select.innerHTML += `<option value="${e.id}">${e.nombre} - $${e.precio.toLocaleString('es-AR')}</option>`;
+      });
+    }
+
+    function agregarOpcionServicio(idStr) {
+      if (!idStr) return;
+      const estilo = ESTILOS_BASE.find(e => e.id === parseInt(idStr));
+      if (estilo && !opcionesSeleccionadas.some(o => o.id === estilo.id)) {
+        opcionesSeleccionadas.push(estilo);
+        renderOpcionesSeleccionadas();
+      }
+      document.getElementById("select-agregar-opcion").value = "";
+    }
+
+    function removerOpcion(id) {
+      opcionesSeleccionadas = opcionesSeleccionadas.filter(o => o.id !== id);
+      renderOpcionesSeleccionadas();
+    }
+
+    function limpiarOpciones() {
+      opcionesSeleccionadas = [];
+      renderOpcionesSeleccionadas();
+    }
+
+    function renderOpcionesSeleccionadas() {
+      const cont = document.getElementById("lista-opciones-seleccionadas");
+      const badge = document.getElementById("cant-seleccionados-badge");
+      const totalEl = document.getElementById("monto-total-turnos");
+
+      badge.textContent = opcionesSeleccionadas.length;
+
+      if (opcionesSeleccionadas.length === 0) {
+        cont.innerHTML = `<span class="text-slate-500 text-[11px] italic">Ninguna opción seleccionada aún...</span>`;
+        totalEl.textContent = "0.00";
+        return;
+      }
+
+      cont.innerHTML = "";
+      let total = 0;
+      opcionesSeleccionadas.forEach(o => {
+        total += o.precio;
+        cont.innerHTML += `
+          <div class="flex justify-between items-center bg-slate-900 border border-slate-800 px-2 py-1 rounded-lg">
+            <span class="truncate text-slate-200">${o.nombre}</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-rose-300 font-semibold">$${o.precio.toLocaleString('es-AR')}</span>
+              <button type="button" onclick="removerOpcion(${o.id})" class="text-slate-500 hover:text-rose-500 font-bold px-1">✕</button>
+            </div>
+          </div>`;
+      });
+
+      totalEl.textContent = total.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+    }
+
+    // GALERÍA
+    function renderGaleria() {
+      const grid = document.getElementById("grid-galeria");
+      grid.innerHTML = "";
+
+      db.transaction("fotos").objectStore("fotos").getAll().onsuccess = (e) => {
+        const fotosPersonalizadas = {};
+        e.target.result.forEach(f => fotosPersonalizadas[f.id] = f.src);
+
+        ESTILOS_BASE.forEach(estilo => {
+          const fotoCustom = fotosPersonalizadas[estilo.id];
+          grid.innerHTML += `
+            <div class="card-animated bg-slate-900 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between hover:border-rose-600/50">
+              <div class="space-y-2">
+                <div class="relative h-36 rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-800">
+                  ${fotoCustom 
+                    ? `<img src="${fotoCustom}" class="w-full h-full object-cover">`
+                    : `<svg width="100%" height="100%" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                          <linearGradient id="grad-${estilo.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="${estilo.color1}" />
+                            <stop offset="100%" stop-color="${estilo.color2}" />
+                          </linearGradient>
+                        </defs>
+                        <rect width="200" height="120" fill="url(#grad-${estilo.id})" opacity="0.2"/>
+                        <circle cx="100" cy="60" r="40" fill="url(#grad-${estilo.id})" />
+                        <path d="M70,90 Q100,30 130,90" stroke="#ffffff" stroke-width="3" fill="none" opacity="0.6"/>
+                       </svg>`
+                  }
+                  <span class="absolute top-2 right-2 bg-slate-950/80 backdrop-blur-md px-2 py-1 rounded-lg text-[10px] font-bold text-rose-300 border border-slate-800">
+                    $${estilo.precio.toLocaleString('es-AR')}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-[9px] uppercase tracking-wider font-bold text-rose-400">${estilo.cat}</span>
+                  <h4 class="font-bold text-xs text-white truncate">${estilo.nombre}</h4>
+                </div>
+              </div>
+              <div class="pt-3 space-y-1.5">
+                <div class="flex gap-1.5">
+                  <button onclick="agregarDesdeGaleria(${estilo.id})" class="flex-1 py-1.5 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 rounded-lg text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Añadir
+                  </button>
+                  <button onclick="cobrarDesdeGaleria('${estilo.nombre}', ${estilo.precio})" class="flex-1 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[11px] font-semibold transition">Cobrar</button>
+                </div>
+                <label class="block text-center text-[10px] text-slate-500 hover:text-rose-400 cursor-pointer pt-1">
+                  <i data-lucide="upload" class="w-3 h-3 inline"></i> Cambiar Foto Real
+                  <input type="file" accept="image/*" class="hidden" onchange="subirFotoEstilo(${estilo.id}, event)">
+                </label>
+              </div>
+            </div>`;
+        });
+        lucide.createIcons();
+      };
+    }
+
+    function agregarDesdeGaleria(id) {
+      agregarOpcionServicio(id);
+      switchTab('turnos');
+    }
+
+    function subirFotoEstilo(id, evt) {
+      const file = evt.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const tx = db.transaction("fotos", "readwrite");
+        tx.objectStore("fotos").put({ id: id, src: reader.result });
+        tx.oncomplete = () => renderGaleria();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function cobrarDesdeGaleria(srv, precio) {
+      document.getElementById("pago-concepto").value = srv;
+      document.getElementById("pago-monto").value = precio;
+      switchTab('caja');
+    }
+
+    // CLIENTES
+    document.getElementById("form-cliente").onsubmit = (e) => {
+      e.preventDefault();
+      const tx = db.transaction("clientes", "readwrite");
+      tx.objectStore("clientes").add({
+        nombre: document.getElementById("cli-nombre").value,
+        telefono: document.getElementById("cli-telefono").value
+      });
+      tx.oncomplete = () => { e.target.reset(); cargarClientes(); };
+    };
+
+    function cargarClientes() {
+      const list = document.getElementById("lista-clientes");
+      const sel = document.getElementById("turno-cliente");
+      list.innerHTML = "";
+      sel.innerHTML = '<option value="">Seleccionar Cliente</option>';
+
+      db.transaction("clientes").objectStore("clientes").getAll().onsuccess = (e) => {
+        e.target.result.forEach(c => {
+          list.innerHTML += `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <p class="font-bold text-xs text-white">${c.nombre}</p>
+              <p class="text-[11px] text-slate-400">${c.telefono}</p>
+            </div>`;
+          sel.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`;
+        });
+      };
+    }
+
+    // HORARIOS
+    function toggleSelectorHorarios() {
+      const panel = document.getElementById("panel-horarios");
+      if (panel.classList.contains("hidden")) {
+        panel.classList.remove("hidden");
+        generarHorariosAutomatizados();
+      } else {
+        panel.classList.add("hidden");
+      }
+    }
+
+    function actualizarBotonHorario() {
+      document.getElementById("turno-hora-val").value = "";
+      document.getElementById("lbl-hora-seleccionada").textContent = "Elegir Hora";
+      const panel = document.getElementById("panel-horarios");
+      if (!panel.classList.contains("hidden")) {
+        generarHorariosAutomatizados();
+      }
+    }
+
+    function generarHorariosAutomatizados() {
+      const diaSel = document.getElementById("turno-fecha-dia").value;
+      const grid = document.getElementById("grid-horas");
+      grid.innerHTML = "";
+
+      if (!diaSel) {
+        grid.innerHTML = `<span class="col-span-3 text-[10px] text-rose-400">Selecciona fecha.</span>`;
+        return;
+      }
+
+      db.transaction("turnos").objectStore("turnos").getAll().onsuccess = (e) => {
+        const turnosExistentes = e.target.result;
+        const horasOcupadas = turnosExistentes
+          .filter(t => t.fecha.startsWith(diaSel))
+          .map(t => t.fecha.split("T")[1]);
+
+        HORARIOS_PLANTILLA.forEach(hora => {
+          const ocupado = horasOcupadas.includes(hora);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = hora;
+          
+          if (ocupado) {
+            btn.className = "py-1 bg-slate-950 text-slate-600 rounded-lg text-[11px] font-mono cursor-not-allowed border border-slate-900 line-through";
+          } else {
+            btn.className = "py-1 bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-200 rounded-lg text-[11px] font-mono border border-slate-700 transition";
+            btn.onclick = () => seleccionarHora(hora);
+          }
+          grid.appendChild(btn);
+        });
+      };
+    }
+
+    function seleccionarHora(hora) {
+      document.getElementById("turno-hora-val").value = hora;
+      document.getElementById("lbl-hora-seleccionada").textContent = `${hora} hs`;
+      document.getElementById("panel-horarios").classList.add("hidden");
+    }
+
+    // FORMULARIO DE RESERVA -> MOSTRAR TICKET EN PANTALLA
+    document.getElementById("form-turno").onsubmit = (e) => {
+      e.preventDefault();
+      const cliente = document.getElementById("turno-cliente").value;
+      const dia = document.getElementById("turno-fecha-dia").value;
+      const hora = document.getElementById("turno-hora-val").value;
+
+      if (opcionesSeleccionadas.length === 0) {
+        alert("Por favor selecciona al menos una opción de uña o Spa para agendar.");
+        return;
+      }
+
+      if (!hora) {
+        alert("Por favor selecciona una hora automatizada haciendo clic en 'Elegir Hora'.");
+        return;
+      }
+
+      const servicioTexto = opcionesSeleccionadas.map(o => o.nombre).join(" + ");
+      const totalPrecio = opcionesSeleccionadas.reduce((acc, o) => acc + o.precio, 0);
+      const fechaCompleta = `${dia}T${hora}`;
+
+      const tx = db.transaction("turnos", "readwrite");
+      const addReq = tx.objectStore("turnos").add({ 
+        cliente, 
+        fecha: fechaCompleta, 
+        servicio: servicioTexto,
+        montoTotal: totalPrecio,
+        items: opcionesSeleccionadas 
+      });
+
+      addReq.onsuccess = (evt) => {
+        const idTurno = evt.target.result;
+        mostrarModalTicketReserva(idTurno, cliente, fechaCompleta, opcionesSeleccionadas, totalPrecio);
+      };
+
+      tx.oncomplete = () => { 
+        e.target.reset(); 
+        limpiarOpciones();
+        document.getElementById("turno-hora-val").value = "";
+        document.getElementById("lbl-hora-seleccionada").textContent = "Elegir Hora";
+        document.getElementById("turno-fecha-dia").value = new Date().toISOString().split('T')[0];
+        cargarTurnos(); 
+      };
+    };
+
+    function cargarTurnos() {
+      const list = document.getElementById("lista-turnos");
+      list.innerHTML = "";
+      db.transaction("turnos").objectStore("turnos").getAll().onsuccess = (e) => {
+        e.target.result.forEach(t => {
+          const [d, h] = t.fecha.split("T");
+          const itemsArr = t.items || [{ nombre: t.servicio, precio: t.montoTotal || 0 }];
+          const itemsJson = JSON.stringify(itemsArr).replace(/"/g, '&quot;');
+          
+          list.innerHTML += `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+              <div>
+                <p class="font-bold text-rose-300">${t.cliente}</p>
+                <p class="text-[11px] text-slate-400">${t.servicio}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] bg-slate-900 border border-slate-800 px-2 py-1 rounded-lg text-slate-300 font-mono">
+                  ${d} - ${h || '00:00'} hs
+                </span>
+                <button onclick="mostrarModalTicketReserva(${t.id}, '${t.cliente}', '${t.fecha}', ${itemsJson}, ${t.montoTotal || 0})" class="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-700 transition" title="Ver Ticket Reserva">
+                  <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>`;
+        });
+        lucide.createIcons();
+      };
+    }
+
+    // MOSTRAR TICKET DE RESERVA EN LA INTERFAZ
+    function mostrarModalTicketReserva(id, cliente, fechaStr, items, total) {
+      document.getElementById("modal-ticket-subtitulo").textContent = "COMPROBANTE DE RESERVA";
+      
+      const [dia, hora] = fechaStr.split("T");
+      
+      let detalleHtml = "";
+      if (Array.isArray(items)) {
+        items.forEach(it => {
+          detalleHtml += `<div class="flex justify-between text-[11px]"><span>• ${it.nombre}</span> <span>$${it.precio.toLocaleString('es-AR')}</span></div>`;
+        });
+      } else {
+        detalleHtml = `<p class="text-[11px] font-bold">${items}</p>`;
+      }
+
+      document.getElementById("modal-ticket-body").innerHTML = `
+        <div class="flex justify-between border-b border-dashed border-slate-200 pb-2">
+          <span>Reserva N°:</span>
+          <strong>#${String(id).padStart(4, '0')}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span>Cliente:</span>
+          <strong>${cliente}</strong>
+        </div>
+        <div class="flex justify-between border-b border-dashed border-slate-200 pb-2">
+          <span>Fecha/Hora:</span>
+          <strong>${dia} - ${hora || '00:00'} hs</strong>
+        </div>
+        <div class="space-y-1 pt-1">
+          <p class="font-bold text-[10px] uppercase text-slate-500">Servicios Elegidos:</p>
+          ${detalleHtml}
+        </div>
+        <div class="border-t border-slate-900 pt-2 flex justify-between text-sm font-bold mt-2">
+          <span>TOTAL:</span>
+          <span class="text-emerald-600">$${total ? total.toLocaleString('es-AR') : '0'}</span>
+        </div>
+      `;
+
+      document.getElementById("modal-ticket").classList.remove("hidden");
+    }
+
+    // FORMULARIO DE PAGO -> MOSTRAR TICKET
+    document.getElementById("form-pago").onsubmit = (e) => {
+      e.preventDefault();
+      const concepto = document.getElementById("pago-concepto").value;
+      const monto = parseFloat(document.getElementById("pago-monto").value);
+
+      const tx = db.transaction("caja", "readwrite");
+      const addReq = tx.objectStore("caja").add({ concepto, monto, fecha: new Date().toISOString() });
+      
+      addReq.onsuccess = (evt) => {
+        const idPago = evt.target.result;
+        mostrarModalTicketPago(idPago, concepto, monto);
+      };
+
+      tx.oncomplete = () => { e.target.reset(); cargarCaja(); };
+    };
+
+    function mostrarModalTicketPago(id, concepto, monto) {
+      document.getElementById("modal-ticket-subtitulo").textContent = "COMPROBANTE DE PAGO";
+      const fechaActual = new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+
+      document.getElementById("modal-ticket-body").innerHTML = `
+        <div class="flex justify-between border-b border-dashed border-slate-200 pb-2">
+          <span>Comprobante:</span>
+          <strong>#${String(id).padStart(4, '0')}</strong>
+        </div>
+        <div class="flex justify-between border-b border-dashed border-slate-200 pb-2">
+          <span>Fecha:</span>
+          <strong>${fechaActual}</strong>
+        </div>
+        <div class="space-y-1 pt-1">
+          <p class="font-bold text-[10px] uppercase text-slate-500">Detalle del Pago:</p>
+          <p class="font-semibold text-slate-800">${concepto}</p>
+        </div>
+        <div class="border-t border-slate-900 pt-2 flex justify-between text-sm font-bold mt-2">
+          <span>TOTAL ABONADO:</span>
+          <span class="text-emerald-600">$${monto.toLocaleString('es-AR')}</span>
+        </div>
+      `;
+
+      document.getElementById("modal-ticket").classList.remove("hidden");
+    }
+
+    function cerrarModalTicket() {
+      document.getElementById("modal-ticket").classList.add("hidden");
+    }
+
+    function cargarCaja() {
+      const list = document.getElementById("lista-pagos");
+      const totalEl = document.getElementById("total-caja");
+      list.innerHTML = "";
+      let tot = 0;
+
+      db.transaction("caja").objectStore("caja").getAll().onsuccess = (e) => {
+        e.target.result.forEach(p => {
+          tot += p.monto;
+          list.innerHTML += `
+            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+              <div>
+                <p class="text-slate-200 font-medium">${p.concepto}</p>
+                <span class="text-[10px] text-slate-500">ID: #${String(p.id).padStart(4, '0')}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-emerald-400">+$${p.monto.toLocaleString('es-AR')}</span>
+                <button onclick="mostrarModalTicketPago(${p.id}, '${p.concepto}', ${p.monto})" class="p-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-700 transition" title="Ver Ticket Pago">
+                  <i data-lucide="ticket" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>`;
+        });
+        totalEl.textContent = tot.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+        lucide.createIcons();
+      };
+    }
+
+    // CIERRE DE CAJA EXCEL
+    async function cerrarCaja() {
+      const pagos = await new Promise(res => {
+        db.transaction("caja").objectStore("caja").getAll().onsuccess = e => res(e.target.result);
+      });
+
+      if (pagos.length === 0) {
+        alert("La caja está vacía. No hay registros para respaldar ni cerrar.");
+        return;
+      }
+
+      if (confirm("¿Efectuar cierre de caja? Se descargará un reporte de caja en Excel y se reiniciará el balance actual.")) {
+        const total = pagos.reduce((acc, p) => acc + p.monto, 0);
+        const dataCaja = pagos.map(p => ({
+          "ID Comprobante": `#${String(p.id).padStart(4, '0')}`,
+          "Concepto / Servicio": p.concepto,
+          "Monto ($ ARS)": p.monto,
+          "Fecha": new Date(p.fecha).toLocaleString('es-AR')
+        }));
+
+        dataCaja.push({});
+        dataCaja.push({ "Concepto / Servicio": "TOTAL CIERRE DE CAJA", "Monto ($ ARS)": total });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(dataCaja);
+        XLSX.utils.book_append_sheet(wb, ws, "Cierre_de_Caja");
+
+        const hoy = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(wb, `Cierre_De_Caja_PinamarNails_${hoy}.xlsx`);
+
+        const tx = db.transaction("caja", "readwrite");
+        tx.objectStore("caja").clear();
+        tx.oncomplete = () => cargarCaja();
+      }
+    }
+
+    // INSUMOS
+    document.getElementById("form-stock").onsubmit = (e) => {
+      e.preventDefault();
+      const tx = db.transaction("stock", "readwrite");
+      tx.objectStore("stock").add({
+        nombre: document.getElementById("stock-nombre").value,
+        cantidad: parseInt(document.getElementById("stock-cant").value)
+      });
+      tx.oncomplete = () => { e.target.reset(); cargarStock(); };
+    };
+
+    function cargarStock() {
+      const list = document.getElementById("lista-stock");
+      list.innerHTML = "";
+      db.transaction("stock").objectStore("stock").getAll().onsuccess = (e) => {
+        e.target.result.forEach(s => {
+          list.innerHTML += `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+              <span class="font-bold text-xs text-slate-200">${s.nombre}</span>
+              <span class="text-xs px-2.5 py-1 rounded-lg ${s.cantidad < 5 ? 'bg-rose-950 text-rose-400 border border-rose-800' : 'bg-slate-900 text-slate-300'} font-mono">
+                ${s.cantidad} unidades
+              </span>
+            </div>`;
+        });
+      };
+    }
+
+    // RESPALDO EXCEL GENERAL
+    async function exportarExcel() {
+      const wb = XLSX.utils.book_new();
+
+      const clientes = await new Promise(res => {
+        db.transaction("clientes").objectStore("clientes").getAll().onsuccess = e => res(e.target.result);
+      });
+      const wsClientes = XLSX.utils.json_to_sheet(clientes.map(c => ({ "ID": c.id, "Nombre Cliente": c.nombre, "Teléfono": c.telefono })));
+      XLSX.utils.book_append_sheet(wb, wsClientes, "Clientes");
+
+      const turnos = await new Promise(res => {
+        db.transaction("turnos").objectStore("turnos").getAll().onsuccess = e => res(e.target.result);
+      });
+      const wsTurnos = XLSX.utils.json_to_sheet(turnos.map(t => ({
+        "ID Reserva": t.id,
+        "Cliente": t.cliente,
+        "Servicios Seleccionados": t.servicio,
+        "Monto Total ($ ARS)": t.montoTotal || 0,
+        "Fecha / Hora": t.fecha.replace("T", " - ") + " hs"
+      })));
+      XLSX.utils.book_append_sheet(wb, wsTurnos, "Turnos");
+
+      const caja = await new Promise(res => {
+        db.transaction("caja").objectStore("caja").getAll().onsuccess = e => res(e.target.result);
+      });
+      const wsCaja = XLSX.utils.json_to_sheet(caja.map(p => ({
+        "ID Comprobante": p.id,
+        "Concepto": p.concepto,
+        "Monto ($ ARS)": p.monto,
+        "Fecha": new Date(p.fecha).toLocaleString('es-AR')
+      })));
+      XLSX.utils.book_append_sheet(wb, wsCaja, "Movimientos_Caja");
+
+      const stock = await new Promise(res => {
+        db.transaction("stock").objectStore("stock").getAll().onsuccess = e => res(e.target.result);
+      });
+      const wsStock = XLSX.utils.json_to_sheet(stock.map(s => ({ "ID": s.id, "Insumo": s.nombre, "Cantidad": s.cantidad })));
+      XLSX.utils.book_append_sheet(wb, wsStock, "Stock");
+
+      const hoy = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `Respaldo_General_PinamarNails_${hoy}.xlsx`);
+    }
+
+    // RESPALDO JSON
+    async function exportarDB() {
+      const backup = {};
+      for (const store of ["clientes", "turnos", "caja", "stock", "fotos"]) {
+        backup[store] = await new Promise(res => {
+          db.transaction(store).objectStore(store).getAll().onsuccess = e => res(e.target.result);
+        });
+      }
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `NailStudio_Backup.json`;
+      a.click();
+    }
+
+    function importarDB(e) {
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        const data = JSON.parse(evt.target.result);
+        for (const store of ["clientes", "turnos", "caja", "stock", "fotos"]) {
+          if (data[store]) {
+            const tx = db.transaction(store, "readwrite");
+            tx.objectStore(store).clear();
+            data[store].forEach(item => tx.objectStore(store).add(item));
+          }
+        }
+        location.reload();
+      };
+      reader.readAsText(e.target.files[0]);
+    }
+  </script>
+</body>
+</html>
+
